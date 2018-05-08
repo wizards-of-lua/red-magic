@@ -1,2 +1,3 @@
-# red-magic
-Red Magic Spell Pack
+# Red Magic 
+Spell Pack for Wizards of Lua Magic
+
