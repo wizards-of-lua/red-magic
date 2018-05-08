@@ -13,8 +13,16 @@ You can use this startup script to activate the Red Magic spell pack on your ser
 Just execute it from your server's startup script, for example like this:
 
   spell:execute("/lua require('red-magic.startup')")
+  
+  
+The Red Magic Spell Pack is dependent on the Claiming Spell Pack.
+Please make sure to start the Claiming Spell Pack before you 
+start this spell pack.
 
 ]]--
+
+-- TODO Red Skull 
+--spell:execute("/lua require('mickkay.redskull').start()")
 
 -- Runes Spell
 spell:execute([[
