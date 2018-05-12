@@ -4,6 +4,7 @@
 
 local module = ...
 require "red-magic.wol.Spell"
+require "red-magic.wol.Vec3"
 
 local pkg = {}
 local RED_CAULDRON_EVENT = module..".event"
