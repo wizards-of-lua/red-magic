@@ -9,7 +9,7 @@ require "mickkay.wol.Spell"
 
 local pkg = {}
 local VISUALIZER_MODULE= 'claiming.claimvisualizer'
-local CLAIMING_SPELL_NAME = 'claiming.claiming'
+local CLAIMING_MODULE = 'claiming.claiming'
 
 local ITEM_CODE = "Magic Helmet"
 local ITEM_DISPLAY_NAME = "Magic Helmet"
@@ -17,6 +17,7 @@ local DURABILITY = 77
 local USE_DELAY = 20*4
 
 local log
+local getNearestClaim
 local getMagicItem
 local isMagicItemNbt
 local addDamage
@@ -39,7 +40,7 @@ end
 
 function pkg.start()
   spell:singleton( module)
-  local claiming = require(CLAIMING_SPELL_NAME).get()
+  local claiming = require(CLAIMING_MODULE)
   if not claiming then
     error("Can't find claiming spell")
   end
@@ -54,9 +55,10 @@ function pkg.start()
       if helmetNbt and isMagicItemNbt(helmetNbt) then
       --local item = getMagicItem(player)
       --if item then
-        local center = claiming:getNearestClaim(player)
-        if center then
-          local width = claiming:getWidth()
+        local claim = getNearestClaim(claiming.getApplicableClaims(player.pos), player.pos)
+        if claim then
+          local width  = claim.width
+          local center = claim.pos 
           spell:execute([[
             lua require('%s').showBorders('%s', Vec3(%s,%s,%s),%s)
           ]], VISUALIZER_MODULE, player.name, center.x, center.y, center.z, width)
@@ -70,6 +72,22 @@ end
 
 function pkg.stop()
   spell:singleton(module)
+end
+
+function getNearestClaim(cs, pos)
+  local center = Vec3(pos.x, 0, pos.z)
+  local result = nil
+  local bestDist = nil
+
+  for _,c in pairs(cs) do
+    local ref = Vec3(c.pos.x, 0, c.pos.z)
+    local dist = (center-ref):magnitude()
+    if not bestDist or dist < bestDist then
+      bestDist = dist
+      result = c
+    end
+  end
+  return result
 end
 
 function getMagicItem( player)
