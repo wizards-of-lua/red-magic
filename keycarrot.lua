@@ -25,19 +25,21 @@ end
 
 function pkg.start()
   spell:singleton( module)
-  local queue=Events.collect("LeftClickBlockEvent")
-  while true do
-    local event = queue:next()
+  Events.on("LeftClickBlockEvent","RightClickBlockEvent"):call(function(event)
     if event.item.displayName == "KeyCarrot" then
-      if event.player.gamemode=="survival" then
+      if event.player.gamemode=="creative" or event.player.gamemode=="survival" then
         spell.pos=event.pos
         if spell.block.data.half=="upper" then
           spell:move("down")
         end
-        toggleDoor()
+        if toggleDoor() then
+          if event.player.gamemode=="creative" then
+            event.canceled = true
+          end
+        end
       end
     end
-  end
+  end)
 end
 
 function toggleDoor()
@@ -53,7 +55,9 @@ function toggleDoor()
         open = true
       })
     end
+    return true
   end
+  return false
 end
 
 return pkg
