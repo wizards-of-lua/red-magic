@@ -189,6 +189,10 @@ end
 
 function payXP(amount)
   local player = Entities.find("@p")[1]
+  if player.gamemode == "creative" then
+    -- creative players won't need to pay XP
+    return true
+  end
   local xp = player.nbt.XpLevel
   if xp < amount then
     return false
