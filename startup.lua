@@ -10,11 +10,18 @@ Dependencies:   wol-1.12.2-2.0.2
                 claiming-1.0.0 [https://github.com/wizards-of-lua/claiming] 
 
 You can use this startup script to activate the Red Magic spell pack on your server.
-Just execute it from your server's startup script, for example like this:
+If you want it to run with the default settings, just execute it from your server's
+startup script like this:
 
-  spell:execute("/lua require('red-magic.startup')")
-  
-  
+  require('red-magic.startup').startup()
+
+If you want to override some or all of these settings, you need to call the startup
+function like this:
+
+  require('red-magic.startup').startup({
+    GOLDEN_AXE_XP_COST = 7
+  })
+
 The Red Magic Spell Pack is dependent on the Claiming Spell Pack.
 Please make sure to start the Claiming Spell Pack before you 
 start this spell pack.
@@ -24,82 +31,111 @@ start this spell pack.
 -- TODO Red Skull 
 --spell:execute("/lua require('mickkay.redskull').start()")
 
--- Runes Spell
-spell:execute([[
-  /lua require('red-magic.runes').start( {
-    require('red-magic.wallrune').handler(),
-    require('red-magic.giantspruce').handler()
-  })
-]])
+local pkg = {}
 
--- The Wall Rune
-spell:execute("/lua require('red-magic.wallrune').start()")
+local DEFAULTS = {
+  GOLDEN_AXE_XP_COST = 7
+}
 
--- The Giant Spruce Rune
-spell:execute("/lua require('red-magic.giantspruce').start()")
+local toLua
+local initialize
 
--- The Hammer
-spell:execute("/lua require('red-magic.hammer').start()")
+function pkg.startup(options)
+  options = initialize(options, DEFAULTS)
 
--- The Lumber Axe
-spell:execute("/lua require('red-magic.lumberaxe').start()")
-
--- The Magic Hoe
-spell:execute("/lua require('red-magic.magichoe').start()")
-
--- The Magic Helmet
-spell:execute("/lua require('red-magic.magichelmet').start()")
-
--- The Key Carrot
-spell:execute("/lua require('red-magic.keycarrot').start()")
-
--- The Red Cauldron
-spell:execute([[
-  /lua local receipies = {
-    { input = "golden_axe", 
-      xp = 7,
-      action = function(e)
-        require("red-magic.lumberaxe").giveItem(e)
-      end
-    },
-    { input = "golden_pickaxe",
-      xp = 7,
-      action = function(e)
-        require("red-magic.hammer").giveItem(e)
-      end
-    },
-    { input = "golden_pickaxe",
-      xp = 7,
-      action = function(e)
-        require("red-magic.hammer").giveItem(e)
-      end
-    },
-    { input = "golden_hoe",
-      xp = 7,
-      action = function(e)
-        require("red-magic.magichoe").giveItem(e)
-      end
-    },
-    { input = "golden_helmet",
-      xp = 7,
-      action = function(e)
-        require("red-magic.magichelmet").giveItem(e)
-      end
-    },
-    { input = "golden_carrot",
-      xp = 7,
-      action = function(e)
-        require("red-magic.keycarrot").giveItem(e)
-      end
-    },
-    { input = "chicken",
-      xp = 1,
-      action = function(e)
-        spell:execute('/summon chicken ~0.5 ~0.5 ~0.5 {ActiveEffects:[{Id:25,Amplifier:5,Duration:20,ShowParticles:0b}]}')
-      end
+  -- Runes Spell
+  spell:execute([[
+    /lua require('red-magic.runes').start( {
+      require('red-magic.wallrune').handler(),
+      require('red-magic.giantspruce').handler()
+    })
+  ]])
+  
+  -- The Wall Rune
+  spell:execute("/lua require('red-magic.wallrune').start()")
+  
+  -- The Giant Spruce Rune
+  spell:execute("/lua require('red-magic.giantspruce').start()")
+  
+  -- The Hammer
+  spell:execute("/lua require('red-magic.hammer').start()")
+  
+  -- The Lumber Axe
+  spell:execute("/lua require('red-magic.lumberaxe').start()")
+  
+  -- The Magic Hoe
+  spell:execute("/lua require('red-magic.magichoe').start()")
+  
+  -- The Magic Helmet
+  spell:execute("/lua require('red-magic.magichelmet').start()")
+  
+  -- The Key Carrot
+  spell:execute("/lua require('red-magic.keycarrot').start()")
+  
+  -- The Red Cauldron
+  spell:execute([[
+    /lua local receipies = {
+      { input = "golden_axe", 
+        xp = 7,
+        action = function(e)
+          require("red-magic.lumberaxe").giveItem(e)
+        end
+      },
+      { input = "golden_pickaxe",
+        xp = 7,
+        action = function(e)
+          require("red-magic.hammer").giveItem(e)
+        end
+      },
+      { input = "golden_pickaxe",
+        xp = 7,
+        action = function(e)
+          require("red-magic.hammer").giveItem(e)
+        end
+      },
+      { input = "golden_hoe",
+        xp = 7,
+        action = function(e)
+          require("red-magic.magichoe").giveItem(e)
+        end
+      },
+      { input = "golden_helmet",
+        xp = 7,
+        action = function(e)
+          require("red-magic.magichelmet").giveItem(e)
+        end
+      },
+      { input = "golden_carrot",
+        xp = 7,
+        action = function(e)
+          require("red-magic.keycarrot").giveItem(e)
+        end
+      },
+      { input = "chicken",
+        xp = 1,
+        action = function(e)
+          spell:execute('/summon chicken ~0.5 ~0.5 ~0.5 {ActiveEffects:[{Id:25,Amplifier:5,Duration:20,ShowParticles:0b}]}')
+        end
+      }
     }
-  }
-  --print("receipies", str(receipies))
-  require('red-magic.redcauldron').start(receipies)
-]])
+    --print("receipies", str(receipies))
+    require('red-magic.redcauldron').start(receipies)
+  ]])
 
+end
+
+function toLua(vec)
+  return string.format("Vec3(%s,%s,%s)", vec.x,vec.y,vec.z)
+end
+
+function initialize(target, defaults)
+  target = target or {}
+  for k,v in pairs(defaults) do
+    if not target[k] then
+      target[k] = v
+    end
+  end
+  return target
+end
+
+return pkg
