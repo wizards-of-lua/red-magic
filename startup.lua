@@ -99,7 +99,7 @@ spell:execute([[
       end
     }
   }
-  print("receipies", str(receipies))
+  --print("receipies", str(receipies))
   require('red-magic.redcauldron').start(receipies)
 ]])
 
