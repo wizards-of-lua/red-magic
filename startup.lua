@@ -15,13 +15,6 @@ startup script like this:
 
   require('red-magic.startup').startup()
 
-If you want to override some or all of these settings, you need to call the startup
-function like this:
-
-  require('red-magic.startup').startup({
-    GOLDEN_AXE_XP_COST = 7
-  })
-
 The Red Magic Spell Pack is dependent on the Claiming Spell Pack.
 Please make sure to start the Claiming Spell Pack before you 
 start this spell pack.
@@ -33,16 +26,8 @@ start this spell pack.
 
 local pkg = {}
 
-local DEFAULTS = {
-  GOLDEN_AXE_XP_COST = 7
-}
-
-local toLua
-local initialize
-
-function pkg.startup(options)
-  options = initialize(options, DEFAULTS)
-
+function pkg.startup()
+  
   -- Runes Spell
   spell:execute([[
     /lua require('red-magic.runes').start( {
@@ -124,18 +109,5 @@ function pkg.startup(options)
 
 end
 
-function toLua(vec)
-  return string.format("Vec3(%s,%s,%s)", vec.x,vec.y,vec.z)
-end
-
-function initialize(target, defaults)
-  target = target or {}
-  for k,v in pairs(defaults) do
-    if not target[k] then
-      target[k] = v
-    end
-  end
-  return target
-end
 
 return pkg
